@@ -1,0 +1,4 @@
+# Project exclude paths
+/harry-admin/target/
+/harry-blog/target/
+/harry-farmework/target/
