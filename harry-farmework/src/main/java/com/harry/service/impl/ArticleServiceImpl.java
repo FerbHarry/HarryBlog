@@ -17,6 +17,7 @@ import com.harry.service.ArticleService;
 
 import com.harry.service.CategoryService;
 import com.harry.utils.BeanCopyUtils;
+import com.harry.utils.RedisCache;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private RedisCache redisCatch;
 
     @Override
     public ResponseResult hotArticleList() {
@@ -88,6 +92,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     public ResponseResult getArticleDetail(Long id) {
 
         Article article = getById(id);
+        //从redis中获取viewCount
+        Integer viewCount = redisCatch.getCacheMapValue(SystemConstants.REDIS_KEY, id.toString());
+        article.setViewCount(Long.valueOf(viewCount));
         //转换成VO
         ArticleDetailVo articleDetailVo = BeanCopyUtils.copyBean(article, ArticleDetailVo.class);
         //根据分类id查询分类名
@@ -102,5 +109,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
 
         return ResponseResult.okResult(articleDetailVo);
+    }
+
+    @Override
+    public ResponseResult updateViewCount(Long id) {
+        //更新redis中对应 id的浏览量
+        redisCatch.incrementCacheMapValue(SystemConstants.REDIS_KEY,id.toString(),1);
+        return ResponseResult.okResult();
     }
 }

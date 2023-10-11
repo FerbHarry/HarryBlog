@@ -26,4 +26,9 @@ public class SystemConstants
      * 评论类型为：友联评论
      */
     public static final String LINK_COMMENT = "1";
+
+    /**
+     * redis key 更新浏览量
+     */
+    public static final String REDIS_KEY = "article:viewCount";
 }
