@@ -6,6 +6,7 @@ import com.harry.constants.SystemConstants;
 import com.harry.domain.entity.Menu;
 import com.harry.mapper.MenuMapper;
 import com.harry.service.MenuService;
+import com.harry.utils.SecurityUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
     @Override
     public List<String> selectPermsByUserId(Long id) {
         //如果是管理员返回所有的权限
-        if(id == 1L){
+        if(SecurityUtils.isAdmin()){
             LambdaQueryWrapper<Menu> wrapper = new LambdaQueryWrapper<>();
             wrapper.in(Menu::getMenuType, SystemConstants.MENU,SystemConstants.BUTTON);
             wrapper.eq(Menu::getStatus,SystemConstants.STATUS_NORMAL);
@@ -37,4 +38,48 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
 
         return getBaseMapper().selectPermsByUserId(id);
     }
+
+    @Override
+    public List<Menu> selectRouterMenuTreeByUserId(Long userId) {
+        MenuMapper menuMapper = getBaseMapper();
+        //判断是否是管理员
+        List<Menu> menus;
+        if(SecurityUtils.isAdmin()){
+            menus  =  menuMapper.selectAllRouterMenu();
+
+        } else {
+            //其他返回当前用户的menu
+            menus = menuMapper.selectRouterMenuTreeByUserId(userId);
+        }
+        //子父关系
+        List<Menu> menuTree = builderMenuTree(menus, 0L);
+
+        return menuTree;
+    }
+
+    private List<Menu> builderMenuTree(List<Menu> menus, long parentId) {
+        List<Menu> menuTree = menus.stream()
+                .filter(menu -> menu.getParentId().equals(parentId))
+                .map(menu -> menu.setChildren(getChildren(menu, menus)))
+                .collect(Collectors.toList());
+        return null;
+    }
+
+
+    /**
+     * 获取传入菜单的子menu
+     *
+     * @param menu
+     * @param menus
+     * @return
+     */
+    private List<Menu> getChildren(Menu menu, List<Menu> menus) {
+
+        List<Menu> childrenList = menus.stream()
+                .filter(m -> m.getParentId().equals(menu.getId()))
+                .collect(Collectors.toList());
+        return childrenList;
+    }
+
+
 }
