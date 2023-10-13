@@ -5,11 +5,14 @@ import com.harry.domain.ResponseResult;
 import com.harry.domain.dto.TagListDto;
 import com.harry.domain.entity.Tag;
 import com.harry.domain.vo.PageVo;
+import com.harry.domain.vo.TagVo;
 import com.harry.service.TagService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/content/tag")
@@ -36,7 +39,11 @@ public class TagController {
         return tagService.deleteTag(id);
     }
 
-
+    @GetMapping("/listAllTag")
+    public ResponseResult listAllTag(){
+        List<TagVo> list = tagService.listAllTag();
+        return ResponseResult.okResult(list);
+    }
 
 
 

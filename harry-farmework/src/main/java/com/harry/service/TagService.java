@@ -5,6 +5,9 @@ import com.harry.domain.ResponseResult;
 import com.harry.domain.dto.TagListDto;
 import com.harry.domain.entity.Tag;
 import com.harry.domain.vo.PageVo;
+import com.harry.domain.vo.TagVo;
+
+import java.util.List;
 
 
 /**
@@ -20,4 +23,6 @@ public interface TagService extends IService<Tag> {
     ResponseResult addTag(Tag tag);
 
     ResponseResult deleteTag(Long id);
+
+    List<TagVo> listAllTag();
 }

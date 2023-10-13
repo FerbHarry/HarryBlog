@@ -33,4 +33,5 @@ public class SystemConstants
     public static final String REDIS_KEY = "article:viewCount";
     public static final String MENU= "C";
     public static final String BUTTON = "F";
+    public static final String NORMAL = "0";
 }
